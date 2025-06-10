@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import {
   Card,
@@ -34,16 +34,7 @@ export default function DashboardPage() {
   const [journalEntries, setJournalEntries] = useState<JournalEntry[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    if (!user) {
-      router.push("/auth");
-      return;
-    }
-
-    loadUserData();
-  }, [user, router]);
-
-  const loadUserData = async () => {
+  const loadUserData = useCallback(async () => {
     if (!user) return;
 
     setIsLoading(true);
@@ -60,15 +51,23 @@ export default function DashboardPage() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [user]);
+
+  useEffect(() => {
+    if (!user) {
+      router.push("/auth");
+      return;
+    }
+
+    loadUserData();
+  }, [user, router, loadUserData]);
 
   const handleLogout = async () => {
-    const success = await logout();
-    if (success) {
+    try {
+      await logout();
       router.push("/");
-    } else {
-      // You might want to show an error message to the user here
-      console.error("Failed to logout");
+    } catch (error) {
+      console.error("Failed to logout", error);
     }
   };
 
@@ -89,20 +88,25 @@ export default function DashboardPage() {
     return null;
   }
 
-  const todayEntry = moodEntries.find((entry) => {
+  const todayEntry = moodEntries.find((entry: MoodEntry) => {
     const today = new Date().toDateString();
     return new Date(entry.date).toDateString() === today;
   });
 
   const recentMoodEntries = moodEntries
-    .filter((entry) => new Date(entry.date) >= subDays(new Date(), 7))
-    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+    .filter(
+      (entry: MoodEntry) => new Date(entry.date) >= subDays(new Date(), 7)
+    )
+    .sort(
+      (a: MoodEntry, b: MoodEntry) =>
+        new Date(b.date).getTime() - new Date(a.date).getTime()
+    )
     .slice(0, 3);
 
   const recentJournalEntries = journalEntries.slice(0, 3);
 
   const totalDaysTracked = new Set(
-    moodEntries.map((entry) => new Date(entry.date).toDateString())
+    moodEntries.map((entry: MoodEntry) => new Date(entry.date).toDateString())
   ).size;
 
   const getMoodEmoji = (mood: string): string => {
@@ -214,7 +218,7 @@ export default function DashboardPage() {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">
-                Today's Mood
+                Today&apos;s Mood
               </CardTitle>
               <Smile className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
@@ -388,13 +392,13 @@ export default function DashboardPage() {
               </h3>
               <p className="text-muted-foreground mb-4">
                 {todayEntry
-                  ? "You've tracked your mood today! Explore your patterns and insights."
+                  ? "You&apos;ve tracked your mood today! Explore your patterns and insights."
                   : "Track your mood for today and let me be your companion through it all."}
               </p>
               <div className="flex gap-3 justify-center">
                 <Link href="/mood-tracker">
                   <Button className="bg-cyan-500 hover:bg-cyan-600">
-                    {todayEntry ? "View Analytics" : "Track Today's Mood"}
+                    {todayEntry ? "View Analytics" : "Track Today&apos;s Mood"}
                   </Button>
                 </Link>
                 <Link href="/journal">

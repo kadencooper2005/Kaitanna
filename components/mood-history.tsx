@@ -117,7 +117,7 @@ export function MoodHistory({ moodEntries }: MoodHistoryProps) {
                   </div>
                   {entry.note && (
                     <p className="text-sm text-muted-foreground mt-1 italic">
-                      "{entry.note}"
+                      &quot;{entry.note}&quot;
                     </p>
                   )}
                 </div>

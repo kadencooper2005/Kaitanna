@@ -233,14 +233,14 @@ export function MoodSelector({ onMoodSelect }: MoodSelectorProps) {
       <Card>
         <CardContent className="p-6">
           <div className="text-center mb-4">
-            <p className="text-lg mb-2">
-              You're feeling{" "}
-              <span className="font-semibold text-cyan-500">
-                {selectedMood}
-              </span>
+            <h2 className="text-2xl font-bold mb-2">
+              Let&apos;s track your mood
+            </h2>
+            <p className="text-muted-foreground mb-4">
+              Don&apos;t worry about being perfect
             </p>
             <p className="text-sm text-muted-foreground">
-              Would you like to add a note about how you're feeling?
+              You&apos;re doing great!
             </p>
           </div>
           <div className="space-y-4">

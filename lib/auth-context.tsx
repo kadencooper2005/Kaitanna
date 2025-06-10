@@ -25,7 +25,7 @@ interface AuthContextType {
     email: string,
     password: string
   ) => Promise<boolean>;
-  logout: () => Promise<boolean>;
+  logout: () => Promise<void>;
   signInWithGoogle: () => Promise<void>; // ✅ Added
 }
 
@@ -131,22 +131,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return false; // ✅ Added return statement for when supabase is not available
   };
 
-  const logout = async (): Promise<boolean> => {
+  const logout = async () => {
     if (supabase) {
-      try {
-        const { error } = await supabase.auth.signOut();
-        if (error) {
-          console.error("Error during logout:", error);
-          return false;
-        }
-        setUser(null);
-        return true;
-      } catch (err) {
-        console.error("Unexpected error during logout:", err);
-        return false;
-      }
+      // ✅ Added check for supabase availability
+      await supabase.auth.signOut();
+      setUser(null);
     }
-    return false;
   };
 
   const signInWithGoogle = async () => {
