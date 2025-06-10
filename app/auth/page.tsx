@@ -13,13 +13,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Heart, Mail, Lock, User } from "lucide-react";
-import Link from "next/link";
+import { Heart } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 
 export default function AuthPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
+  const [message, setMessage] = useState(""); // for info like "check your email"
   const router = useRouter();
 
   const [loginForm, setLoginForm] = useState({ email: "", password: "" });
@@ -33,15 +33,21 @@ export default function AuthPage() {
     e.preventDefault();
     setIsLoading(true);
     setError("");
+    setMessage("");
 
-    if (supabase) {
-      const { error } = await supabase.auth.signInWithPassword({
-        email: loginForm.email,
-        password: loginForm.password,
-      });
+    if (!supabase) {
+      setError("Authentication service is not available");
+      setIsLoading(false);
+      return;
     }
-    if (error) {
-      setError(error);
+
+    const { error: loginError } = await supabase.auth.signInWithPassword({
+      email: loginForm.email,
+      password: loginForm.password,
+    });
+
+    if (loginError) {
+      setError(loginError.message);
     } else {
       router.push("/dashboard");
     }
@@ -52,6 +58,13 @@ export default function AuthPage() {
     e.preventDefault();
     setIsLoading(true);
     setError("");
+    setMessage("");
+
+    if (!supabase) {
+      setError("Authentication service is not available");
+      setIsLoading(false);
+      return;
+    }
 
     if (signupForm.password !== signupForm.confirmPassword) {
       setError("Passwords don't match");
@@ -59,16 +72,21 @@ export default function AuthPage() {
       return;
     }
 
-    if (supabase) {
-      const { error } = await supabase.auth.signUp({
-        email: signupForm.email,
-        password: signupForm.password,
-      });
-    }
-    if (error) {
-      setError(error);
+    const { data, error: signUpError } = await supabase.auth.signUp({
+      email: signupForm.email,
+      password: signupForm.password,
+      options: {
+        emailRedirectTo: `${window.location.origin}/confirm-signup`,
+      },
+    });
+
+    if (signUpError) {
+      setError(signUpError.message);
     } else {
-      router.push("/dashboard");
+      setMessage(
+        "Signup successful! Please check your email to confirm your account."
+      );
+      setSignupForm({ email: "", password: "", confirmPassword: "" });
     }
     setIsLoading(false);
   };
@@ -76,22 +94,27 @@ export default function AuthPage() {
   const handleGoogleAuth = async () => {
     setIsLoading(true);
     setError("");
-    if (supabase) {
-      try {
-        const { error } = await supabase.auth.signInWithOAuth({
-          provider: "google",
-        });
+    setMessage("");
 
-        if (error) {
-          setError("Google authentication failed");
-        }
+    if (!supabase) {
+      setError("Authentication service is not available");
+      setIsLoading(false);
+      return;
+    }
 
-        // Supabase will handle the redirect and callback.
-      } catch (err) {
-        setError("Google authentication failed");
-      } finally {
-        setIsLoading(false);
+    try {
+      const { error: googleError } = await supabase.auth.signInWithOAuth({
+        provider: "google",
+      });
+
+      if (googleError) {
+        setError(googleError.message);
       }
+      // Redirect and callback handled by Supabase automatically
+    } catch (error) {
+      setError("Google authentication failed");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -133,6 +156,7 @@ export default function AuthPage() {
                       onChange={(e) =>
                         setLoginForm({ ...loginForm, email: e.target.value })
                       }
+                      required
                     />
                   </div>
 
@@ -145,6 +169,7 @@ export default function AuthPage() {
                       onChange={(e) =>
                         setLoginForm({ ...loginForm, password: e.target.value })
                       }
+                      required
                     />
                   </div>
 
@@ -153,6 +178,7 @@ export default function AuthPage() {
                   <Button
                     type="submit"
                     className="w-full text-white bg-cyan-500"
+                    disabled={isLoading}
                   >
                     {isLoading ? "Loading..." : "Login"}
                   </Button>
@@ -162,6 +188,7 @@ export default function AuthPage() {
                     variant="outline"
                     className="w-full"
                     onClick={handleGoogleAuth}
+                    disabled={isLoading}
                   >
                     Continue with Google
                   </Button>
@@ -189,6 +216,7 @@ export default function AuthPage() {
                       onChange={(e) =>
                         setSignupForm({ ...signupForm, email: e.target.value })
                       }
+                      required
                     />
                   </div>
 
@@ -204,6 +232,7 @@ export default function AuthPage() {
                           password: e.target.value,
                         })
                       }
+                      required
                     />
                   </div>
 
@@ -219,14 +248,19 @@ export default function AuthPage() {
                           confirmPassword: e.target.value,
                         })
                       }
+                      required
                     />
                   </div>
 
                   {error && <p className="text-red-500 text-sm">{error}</p>}
+                  {message && (
+                    <p className="text-green-600 text-sm">{message}</p>
+                  )}
 
                   <Button
                     type="submit"
                     className="w-full text-white bg-cyan-500"
+                    disabled={isLoading}
                   >
                     {isLoading ? "Loading..." : "Sign Up"}
                   </Button>

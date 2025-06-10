@@ -50,9 +50,14 @@ export default function MoodTrackerPage() {
     setSelectedMood(null);
   };
 
-  const handleLogout = () => {
-    logout();
-    router.push("/");
+  const handleLogout = async () => {
+    const success = await logout();
+    if (success) {
+      router.push("/");
+    } else {
+      // You might want to show an error message to the user here
+      console.error("Failed to logout");
+    }
   };
 
   // Show loading while checking authentication

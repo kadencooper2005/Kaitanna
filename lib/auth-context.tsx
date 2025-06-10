@@ -25,7 +25,7 @@ interface AuthContextType {
     email: string,
     password: string
   ) => Promise<boolean>;
-  logout: () => Promise<void>;
+  logout: () => Promise<boolean>;
   signInWithGoogle: () => Promise<void>; // ✅ Added
 }
 
@@ -37,21 +37,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     const init = async () => {
-      const { data, error } = await supabase.auth.getSession();
-      if (data.session?.user) {
-        const u = data.session.user;
-        setUser({
-          id: u.id,
-          username: u.user_metadata?.username || u.email || "",
-          email: u.email || "",
-          createdAt: u.created_at || "",
-        });
+      if (supabase) {
+        // ✅ Added check for supabase availability
+        const { data, error } = await supabase.auth.getSession();
+        if (data.session?.user) {
+          const u = data.session.user;
+          setUser({
+            id: u.id,
+            username: u.user_metadata?.username || u.email || "",
+            email: u.email || "",
+            createdAt: u.created_at || "",
+          });
+        }
       }
     };
 
     init();
 
-    const { data: authListener } = supabase.auth.onAuthStateChange(
+    const authListener = supabase?.auth.onAuthStateChange(
       async (_, session) => {
         if (session?.user) {
           const u = session.user;
@@ -68,29 +71,34 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
       }
     );
-
     return () => {
-      authListener.subscription.unsubscribe();
+      if (authListener?.data?.subscription) {
+        authListener.data.subscription.unsubscribe();
+      }
     };
   }, [router]);
 
   const login = async (email: string, password: string): Promise<boolean> => {
-    const { error, data } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
+    if (supabase) {
+      // ✅ Added check for supabase availability
+      const { error, data } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
 
-    if (error || !data.session) return false;
+      if (error || !data.session) return false;
 
-    const u = data.user;
-    setUser({
-      id: u.id,
-      username: u.user_metadata?.username || u.email || "",
-      email: u.email || "",
-      createdAt: u.created_at || "",
-    });
+      const u = data.user;
+      setUser({
+        id: u.id,
+        username: u.user_metadata?.username || u.email || "",
+        email: u.email || "",
+        createdAt: u.created_at || "",
+      });
 
-    return true;
+      return true;
+    }
+    return false; // ✅ Added return statement for when supabase is not available
   };
 
   const signup = async (
@@ -98,34 +106,54 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     email: string,
     password: string
   ): Promise<boolean> => {
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: { username },
-      },
-    });
+    if (supabase) {
+      // ✅ Added check for supabase availability
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: { username },
+        },
+      });
 
-    if (error || !data.user) return false;
+      if (error || !data.user) return false;
 
-    const u = data.user;
-    setUser({
-      id: u.id,
-      username,
-      email,
-      createdAt: u.created_at || "",
-    });
+      const u = data.user;
+      setUser({
+        id: u.id,
+        username,
+        email,
+        createdAt: u.created_at || "",
+      });
 
-    return true;
+      return true;
+    }
+    return false; // ✅ Added return statement for when supabase is not available
   };
 
-  const logout = async () => {
-    await supabase.auth.signOut();
-    setUser(null);
+  const logout = async (): Promise<boolean> => {
+    if (supabase) {
+      try {
+        const { error } = await supabase.auth.signOut();
+        if (error) {
+          console.error("Error during logout:", error);
+          return false;
+        }
+        setUser(null);
+        return true;
+      } catch (err) {
+        console.error("Unexpected error during logout:", err);
+        return false;
+      }
+    }
+    return false;
   };
 
   const signInWithGoogle = async () => {
-    await supabase.auth.signInWithOAuth({ provider: "google" });
+    if (supabase) {
+      // ✅ Added check for supabase availability
+      await supabase.auth.signInWithOAuth({ provider: "google" });
+    }
   };
 
   return (
