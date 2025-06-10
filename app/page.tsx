@@ -44,7 +44,7 @@ export default function AboutPage() {
         <section className="flex flex-col items-center justify-center text-center mb-12">
           <Avatar className="h-32 w-32 mb-4">
             <AvatarImage
-              src="/placeholder.svg?height=128&width=128"
+              src="/app_logo.svg?height=128&width=128"
               alt="Kaitanna"
             />
             <AvatarFallback className="bg-cyan-500 text-white text-2xl">
@@ -88,13 +88,14 @@ export default function AboutPage() {
             <p>
               Kaitanna is your personal emotional wellness companion designed to
               help you understand and track your emotional patterns over time.
-              Through daily mood tracking and reflective journaling, you'll gain
-              valuable insights into what affects your emotional well-being.
+              Through daily mood tracking and reflective journaling, you&apos;ll
+              gain valuable insights into what affects your emotional
+              well-being.
             </p>
             <p>
               Our platform combines the simplicity of mood tracking with the
               depth of personal journaling, creating a comprehensive tool for
-              emotional self-awareness. Whether you're looking to identify
+              emotional self-awareness. Whether you&apos;re looking to identify
               patterns, work through challenges, or simply maintain better
               emotional health, Kaitanna provides the structure and insights you
               need.
@@ -193,7 +194,7 @@ export default function AboutPage() {
               </CardHeader>
               <CardContent>
                 All your mood data and journal entries are encrypted and
-                private. Your emotional journey is yours alone, and we're
+                private. Your emotional journey is yours alone, and we&apos;re
                 committed to keeping it that way.
               </CardContent>
             </Card>
@@ -262,12 +263,12 @@ export default function AboutPage() {
               Why Emotional Tracking Matters
             </h2>
             <p className="text-lg">
-              "Understanding your emotions is the first step toward emotional
-              wellness. By tracking your moods and reflecting on your
+              &quot;Understanding your emotions is the first step toward
+              emotional wellness. By tracking your moods and reflecting on your
               experiences, you develop greater self-awareness, identify what
-              truly matters to you, and build resilience for life's challenges.
-              Kaitanna provides the tools and insights to support this important
-              journey of self-discovery."
+              truly matters to you, and build resilience for life&apos;s
+              challenges. Kaitanna provides the tools and insights to support
+              this important journey of self-discovery.&quot;
             </p>
           </div>
         </section>

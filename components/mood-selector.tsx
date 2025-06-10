@@ -274,7 +274,7 @@ export function MoodSelector({ onMoodSelect }: MoodSelectorProps) {
   return (
     <div className="space-y-4">
       <p className="text-sm text-muted-foreground text-center">
-        Select the emotion that best describes how you're feeling right now
+        Select the emotion that best describes how you&apos;re feeling right now
       </p>
       <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3">
         {MOODS.map((mood) => (

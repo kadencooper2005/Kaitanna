@@ -75,12 +75,26 @@ const getMoodCategory = (mood: string): keyof typeof MOOD_COLORS => {
   return "other";
 };
 
-// Custom tooltip for the pie chart
-const CustomPieTooltip = ({ active, payload }: any) => {
+interface TooltipProps {
+  active?: boolean;
+  payload?: Array<{
+    name: string;
+    value: number;
+    payload: {
+      name: string;
+      value: number;
+    };
+  }>;
+}
+
+const CustomPieTooltip = ({ active, payload }: TooltipProps) => {
   if (active && payload && payload.length) {
     return (
-      <div className="bg-background p-2 border rounded-md shadow-sm">
-        <p className="font-medium">{`${payload[0].name}: ${payload[0].value}`}</p>
+      <div className="bg-background border rounded-lg shadow-lg p-3">
+        <p className="font-medium">{payload[0].name}</p>
+        <p className="text-sm text-muted-foreground">
+          {payload[0].value} entries
+        </p>
       </div>
     );
   }

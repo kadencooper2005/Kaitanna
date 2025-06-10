@@ -61,7 +61,7 @@ export function addUserMoodEntry(userId: string, mood: string, note?: string): M
 }
 
 // Legacy function for backward compatibility
-export function addMoodEntry(mood: string, note?: string): MoodEntry {
+export function addMoodEntry(): never {
     // This function is deprecated - use addUserMoodEntry instead
     throw new Error("addMoodEntry is deprecated. Use addUserMoodEntry instead.")
 }
@@ -79,7 +79,7 @@ export function deleteUserMoodEntry(userId: string, entryId: string): void {
 }
 
 // Legacy function for backward compatibility
-export function deleteMoodEntry(id: string): void {
+export function deleteMoodEntry(): never {
     // This function is deprecated - use deleteUserMoodEntry instead
     throw new Error("deleteMoodEntry is deprecated. Use deleteUserMoodEntry instead.")
 }

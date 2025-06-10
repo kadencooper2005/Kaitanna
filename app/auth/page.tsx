@@ -72,7 +72,7 @@ export default function AuthPage() {
       return;
     }
 
-    const { data, error: signUpError } = await supabase.auth.signUp({
+    const { error: signUpError } = await supabase.auth.signUp({
       email: signupForm.email,
       password: signupForm.password,
       options: {
@@ -111,7 +111,7 @@ export default function AuthPage() {
         setError(googleError.message);
       }
       // Redirect and callback handled by Supabase automatically
-    } catch (error) {
+    } catch {
       setError("Google authentication failed");
     } finally {
       setIsLoading(false);

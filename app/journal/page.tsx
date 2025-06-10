@@ -84,24 +84,22 @@ export default function JournalPage() {
       return;
     }
 
-    loadJournalEntries();
+    const loadEntries = async () => {
+      setIsLoading(true);
+      setError(null);
+      try {
+        const userEntries = await getUserJournalEntries(user.id);
+        setEntries(userEntries);
+      } catch (error) {
+        console.error("Error loading journal entries:", error);
+        setError("Failed to load journal entries. Please try again.");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadEntries();
   }, [user, router]);
-
-  const loadJournalEntries = async () => {
-    if (!user) return;
-
-    setIsLoading(true);
-    setError(null);
-    try {
-      const userEntries = await getUserJournalEntries(user.id);
-      setEntries(userEntries);
-    } catch (error) {
-      console.error("Error loading journal entries:", error);
-      setError("Failed to load journal entries. Please try again.");
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
   const handleCreateEntry = async () => {
     if (!user || !newEntryTitle.trim() || !newEntryContent.trim()) return;
@@ -440,7 +438,7 @@ export default function JournalPage() {
                       Your Journaling Journey
                     </h3>
                     <p className="text-muted-foreground">
-                      You've written {entries.length}{" "}
+                      You&apos;ve written {entries.length}{" "}
                       {entries.length === 1 ? "entry" : "entries"} so far. Keep
                       reflecting and growing!
                     </p>
@@ -586,8 +584,9 @@ export default function JournalPage() {
           <AlertDialogHeader>
             <AlertDialogTitle>Delete Journal Entry</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete "{selectedEntry?.title}"? This
-              action cannot be undone and your entry will be permanently lost.
+              Are you sure you want to delete &apos;{selectedEntry?.title}
+              &apos;? This action cannot be undone and your entry will be
+              permanently lost.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

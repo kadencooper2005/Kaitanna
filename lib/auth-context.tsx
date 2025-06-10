@@ -26,20 +26,19 @@ interface AuthContextType {
     password: string
   ) => Promise<boolean>;
   logout: () => Promise<void>;
-  signInWithGoogle: () => Promise<void>; // ✅ Added
+  signInWithGoogle: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
-  const router = useRouter(); // ✅ Added
+  const router = useRouter();
 
   useEffect(() => {
     const init = async () => {
       if (supabase) {
-        // ✅ Added check for supabase availability
-        const { data, error } = await supabase.auth.getSession();
+        const { data } = await supabase.auth.getSession();
         if (data.session?.user) {
           const u = data.session.user;
           setUser({
@@ -48,57 +47,62 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             email: u.email || "",
             createdAt: u.created_at || "",
           });
+          // No redirect here on init
         }
       }
     };
 
     init();
 
-    const authListener = supabase?.auth.onAuthStateChange(
-      async (_, session) => {
-        if (session?.user) {
-          const u = session.user;
-          setUser({
-            id: u.id,
-            username: u.user_metadata?.username || u.email || "",
-            email: u.email || "",
-            createdAt: u.created_at || "",
-          });
-
-          router.push("/dashboard"); // ✅ Redirect after login
-        } else {
-          setUser(null);
+    if (supabase) {
+      const authListener = supabase.auth.onAuthStateChange(
+        async (event, session) => {
+          if (session?.user) {
+            const u = session.user;
+            setUser({
+              id: u.id,
+              username: u.user_metadata?.username || u.email || "",
+              email: u.email || "",
+              createdAt: u.created_at || "",
+            });
+            // Redirect after login or OAuth redirect
+            router.push("/dashboard");
+          } else {
+            setUser(null);
+          }
         }
-      }
-    );
-    return () => {
-      if (authListener?.data?.subscription) {
-        authListener.data.subscription.unsubscribe();
-      }
-    };
+      );
+
+      return () => {
+        if (authListener?.data?.subscription) {
+          authListener.data.subscription.unsubscribe();
+        }
+      };
+    }
   }, [router]);
 
   const login = async (email: string, password: string): Promise<boolean> => {
-    if (supabase) {
-      // ✅ Added check for supabase availability
-      const { error, data } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
+    if (!supabase) return false;
 
-      if (error || !data.session) return false;
+    const { error, data } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
 
-      const u = data.user;
-      setUser({
-        id: u.id,
-        username: u.user_metadata?.username || u.email || "",
-        email: u.email || "",
-        createdAt: u.created_at || "",
-      });
+    if (error || !data.session) return false;
 
-      return true;
-    }
-    return false; // ✅ Added return statement for when supabase is not available
+    const u = data.user;
+    setUser({
+      id: u.id,
+      username: u.user_metadata?.username || u.email || "",
+      email: u.email || "",
+      createdAt: u.created_at || "",
+    });
+
+    // Redirect after successful login
+    router.push("/dashboard");
+
+    return true;
   };
 
   const signup = async (
@@ -106,43 +110,53 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     email: string,
     password: string
   ): Promise<boolean> => {
-    if (supabase) {
-      // ✅ Added check for supabase availability
-      const { data, error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          data: { username },
-        },
-      });
+    if (!supabase) return false;
 
-      if (error || !data.user) return false;
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: { username },
+      },
+    });
 
-      const u = data.user;
-      setUser({
-        id: u.id,
-        username,
-        email,
-        createdAt: u.created_at || "",
-      });
+    if (error || !data.user) return false;
 
-      return true;
-    }
-    return false; // ✅ Added return statement for when supabase is not available
+    const u = data.user;
+    setUser({
+      id: u.id,
+      username,
+      email,
+      createdAt: u.created_at || "",
+    });
+
+    // Optionally redirect after signup
+    router.push("/dashboard");
+
+    return true;
   };
 
   const logout = async () => {
-    if (supabase) {
-      // ✅ Added check for supabase availability
-      await supabase.auth.signOut();
-      setUser(null);
-    }
+    if (!supabase) return;
+
+    await supabase.auth.signOut();
+    setUser(null);
+    router.push("/"); // Redirect to homepage or login page after logout
   };
 
   const signInWithGoogle = async () => {
-    if (supabase) {
-      // ✅ Added check for supabase availability
-      await supabase.auth.signInWithOAuth({ provider: "google" });
+    if (!supabase) {
+      console.error("Supabase instance is not available");
+      return;
+    }
+
+    try {
+      // This will redirect to Google and back, no immediate session or redirect here
+      await supabase.auth.signInWithOAuth({
+        provider: "google",
+      });
+    } catch (err) {
+      console.error("Unexpected error during Google sign in:", err);
     }
   };
 
