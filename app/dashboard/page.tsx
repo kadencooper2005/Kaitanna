@@ -11,7 +11,6 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
 import {
   Heart,
   BarChart3,
@@ -19,16 +18,20 @@ import {
   TrendingUp,
   Smile,
   LogOut,
+  BookOpen,
+  Plus,
 } from "lucide-react";
 import Link from "next/link";
 import { useAuth } from "@/lib/auth-context";
 import { getUserMoodEntries, type MoodEntry } from "@/lib/mood-data";
+import { getUserJournalEntries, type JournalEntry } from "@/lib/supabase";
 import { format, subDays } from "date-fns";
 
 export default function DashboardPage() {
   const { user, logout } = useAuth();
   const router = useRouter();
   const [moodEntries, setMoodEntries] = useState<MoodEntry[]>([]);
+  const [journalEntries, setJournalEntries] = useState<JournalEntry[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -37,11 +40,27 @@ export default function DashboardPage() {
       return;
     }
 
-    // Load user-specific mood data
-    const userMoods = getUserMoodEntries(user.id);
-    setMoodEntries(userMoods);
-    setIsLoading(false);
+    loadUserData();
   }, [user, router]);
+
+  const loadUserData = async () => {
+    if (!user) return;
+
+    setIsLoading(true);
+    try {
+      // Load mood data
+      const userMoods = getUserMoodEntries(user.id);
+      setMoodEntries(userMoods);
+
+      // Load journal data
+      const userJournalEntries = await getUserJournalEntries(user.id);
+      setJournalEntries(userJournalEntries);
+    } catch (error) {
+      console.error("Error loading user data:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const handleLogout = () => {
     logout();
@@ -70,10 +89,12 @@ export default function DashboardPage() {
     return new Date(entry.date).toDateString() === today;
   });
 
-  const recentEntries = moodEntries
+  const recentMoodEntries = moodEntries
     .filter((entry) => new Date(entry.date) >= subDays(new Date(), 7))
     .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
     .slice(0, 3);
+
+  const recentJournalEntries = journalEntries.slice(0, 3);
 
   const totalDaysTracked = new Set(
     moodEntries.map((entry) => new Date(entry.date).toDateString())
@@ -128,6 +149,12 @@ export default function DashboardPage() {
             >
               Mood Tracker
             </Link>
+            <Link
+              href="/journal"
+              className="text-sm font-medium hover:text-cyan-500 transition-colors"
+            >
+              Journal
+            </Link>
             <Button
               variant="ghost"
               size="icon"
@@ -163,7 +190,7 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 mb-8">
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4 mb-8">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">
@@ -218,6 +245,23 @@ export default function DashboardPage() {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">
+                Journal Entries
+              </CardTitle>
+              <BookOpen className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{journalEntries.length}</div>
+              <p className="text-xs text-muted-foreground">
+                {journalEntries.length > 0
+                  ? "Keep writing!"
+                  : "Start journaling"}
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">
                 Tracking Streak
               </CardTitle>
               <TrendingUp className="h-4 w-4 text-muted-foreground" />
@@ -245,9 +289,9 @@ export default function DashboardPage() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              {recentEntries.length > 0 ? (
+              {recentMoodEntries.length > 0 ? (
                 <div className="space-y-3">
-                  {recentEntries.map((entry) => (
+                  {recentMoodEntries.map((entry) => (
                     <div
                       key={entry.id}
                       className="flex items-center justify-between"
@@ -284,42 +328,49 @@ export default function DashboardPage() {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Heart className="h-5 w-5 text-cyan-500" />
-                Emotional Wellness
+                <BookOpen className="h-5 w-5 text-cyan-500" />
+                Recent Journal Entries
               </CardTitle>
-              <CardDescription>Your journey with Kaitanna</CardDescription>
+              <CardDescription>
+                Your latest thoughts and reflections
+              </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm">Account created</span>
-                  <Badge
-                    variant="outline"
-                    className="bg-cyan-500/10 text-cyan-500 border-cyan-500/20"
-                  >
-                    {format(new Date(user.createdAt), "MMM dd, yyyy")}
-                  </Badge>
+              {recentJournalEntries.length > 0 ? (
+                <div className="space-y-3">
+                  {recentJournalEntries.map((entry) => (
+                    <div
+                      key={entry.id}
+                      className="border-l-2 border-cyan-500 pl-3"
+                    >
+                      <h4 className="font-medium truncate">{entry.title}</h4>
+                      <p className="text-sm text-muted-foreground line-clamp-2">
+                        {entry.content}
+                      </p>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        {format(new Date(entry.created_at), "MMM dd, h:mm a")}
+                      </p>
+                    </div>
+                  ))}
+                  <Link href="/journal">
+                    <Button variant="outline" size="sm" className="w-full mt-2">
+                      View All Entries
+                    </Button>
+                  </Link>
                 </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm">Days with Kaitanna</span>
-                  <span className="font-semibold">
-                    {Math.ceil(
-                      (Date.now() - new Date(user.createdAt).getTime()) /
-                        (1000 * 60 * 60 * 24)
-                    )}
-                  </span>
-                </div>
-                <div className="pt-4">
-                  <p className="text-sm text-muted-foreground italic">
-                    "Every emotion you track is a step toward understanding
-                    yourself better. I'm here to support you on this journey,{" "}
-                    {user.username}."
+              ) : (
+                <div className="text-center py-4">
+                  <p className="text-muted-foreground mb-2">
+                    No journal entries yet
                   </p>
-                  <p className="text-xs text-cyan-600 dark:text-cyan-400 mt-2">
-                    - Kaitanna
-                  </p>
+                  <Link href="/journal">
+                    <Button size="sm" className="bg-cyan-500 hover:bg-cyan-600">
+                      <Plus className="h-4 w-4 mr-2" />
+                      Start Writing
+                    </Button>
+                  </Link>
                 </div>
-              </div>
+              )}
             </CardContent>
           </Card>
         </div>
@@ -341,8 +392,11 @@ export default function DashboardPage() {
                     {todayEntry ? "View Analytics" : "Track Today's Mood"}
                   </Button>
                 </Link>
-                <Link href="/">
-                  <Button variant="outline">Learn More</Button>
+                <Link href="/journal">
+                  <Button variant="outline">
+                    <BookOpen className="h-4 w-4 mr-2" />
+                    Write in Journal
+                  </Button>
                 </Link>
               </div>
             </CardContent>
