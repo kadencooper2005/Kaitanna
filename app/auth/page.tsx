@@ -50,7 +50,8 @@ export default function AuthPage() {
       } else {
         setError("Invalid username or password");
       }
-    } catch (err) {
+    } catch (error) {
+      console.error("Login error:", error);
       setError("An error occurred during login");
     } finally {
       setIsLoading(false);
@@ -85,7 +86,8 @@ export default function AuthPage() {
       } else {
         setError("Username already exists");
       }
-    } catch (err) {
+    } catch (error) {
+      console.error("Signup error:", error);
       setError("An error occurred during signup");
     } finally {
       setIsLoading(false);
@@ -113,7 +115,8 @@ export default function AuthPage() {
         setError(error.message);
       }
       // Supabase handles the redirect automatically
-    } catch (err) {
+    } catch (error) {
+      console.error("Google auth error:", error);
       setError("Google authentication failed");
     } finally {
       setIsLoading(false);

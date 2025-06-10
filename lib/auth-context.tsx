@@ -39,6 +39,24 @@ interface ProfileUpdate {
   newPassword?: string;
 }
 
+interface StoredUser {
+  id: string;
+  username: string;
+  email: string;
+  password: string;
+  createdAt: string;
+}
+
+interface MoodEntry {
+  userId: string;
+  // Add other mood entry fields as needed
+}
+
+interface JournalEntry {
+  user_id: string;
+  // Add other journal entry fields as needed
+}
+
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
@@ -76,7 +94,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // Check stored users
     const users = JSON.parse(localStorage.getItem("kaitanna-users") || "[]");
     const foundUser = users.find(
-      (u: any) => u.username === username && u.password === password
+      (u: StoredUser) => u.username === username && u.password === password
     );
 
     if (foundUser) {
@@ -105,7 +123,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // Check if user already exists
     const users = JSON.parse(localStorage.getItem("kaitanna-users") || "[]");
     const existingUser = users.find(
-      (u: any) => u.username === username || u.email === email
+      (u: StoredUser) => u.username === username || u.email === email
     );
 
     if (existingUser) {
@@ -145,7 +163,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     await new Promise((resolve) => setTimeout(resolve, 500));
 
     const users = JSON.parse(localStorage.getItem("kaitanna-users") || "[]");
-    const userIndex = users.findIndex((u: any) => u.id === userId);
+    const userIndex = users.findIndex((u: StoredUser) => u.id === userId);
 
     if (userIndex === -1) {
       return false;
@@ -164,7 +182,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // If updating username or email, check for conflicts
     if (updates.username || updates.email) {
       const conflictUser = users.find(
-        (u: any) =>
+        (u: StoredUser) =>
           u.id !== userId &&
           ((updates.username && u.username === updates.username) ||
             (updates.email && u.email === updates.email))
@@ -204,7 +222,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       // Remove user from users list
       const users = JSON.parse(localStorage.getItem("kaitanna-users") || "[]");
-      const filteredUsers = users.filter((u: any) => u.id !== userId);
+      const filteredUsers = users.filter((u: StoredUser) => u.id !== userId);
       localStorage.setItem("kaitanna-users", JSON.stringify(filteredUsers));
 
       // Remove user's mood data
@@ -212,7 +230,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         localStorage.getItem("kaitanna-mood-entries") || "[]"
       );
       const filteredMoodEntries = moodEntries.filter(
-        (entry: any) => entry.userId !== userId
+        (entry: MoodEntry) => entry.userId !== userId
       );
       localStorage.setItem(
         "kaitanna-mood-entries",
@@ -224,7 +242,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         localStorage.getItem("kaitanna-journal-entries") || "[]"
       );
       const filteredJournalEntries = journalEntries.filter(
-        (entry: any) => entry.user_id !== userId
+        (entry: JournalEntry) => entry.user_id !== userId
       );
       localStorage.setItem(
         "kaitanna-journal-entries",
