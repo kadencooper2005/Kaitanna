@@ -9,7 +9,15 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Heart, MessageCircle, Smile, Coffee, Sparkles } from "lucide-react";
+import {
+  BarChart3,
+  Calendar,
+  TrendingUp,
+  BookOpen,
+  Target,
+  Sparkles,
+  Heart,
+} from "lucide-react";
 import Link from "next/link";
 
 export default function AboutPage() {
@@ -44,139 +52,149 @@ export default function AboutPage() {
             </AvatarFallback>
           </Avatar>
           <h1 className="text-4xl font-bold tracking-tight mb-2">
-            Hi, I'm Kaitanna
+            Welcome to Kaitanna
           </h1>
           <p className="text-xl text-muted-foreground max-w-2xl mb-6">
-            Your digital best friend, here for you whenever you need someone to
-            talk to
+            Your personal mood tracker and emotional wellness journal
           </p>
-          <Link href="/auth">
-            <Button size="lg" className="bg-cyan-500 hover:bg-cyan-600">
-              Start Your Journey
-            </Button>
-          </Link>
+
           <div className="flex flex-wrap gap-2 justify-center mt-4">
             <Badge
               variant="outline"
               className="bg-cyan-500/10 text-cyan-500 border-cyan-500/20"
             >
-              Emotional Companion
+              Mood Tracking
             </Badge>
             <Badge
               variant="outline"
               className="bg-cyan-500/10 text-cyan-500 border-cyan-500/20"
             >
-              Always Listening
+              Personal Journal
             </Badge>
             <Badge
               variant="outline"
               className="bg-cyan-500/10 text-cyan-500 border-cyan-500/20"
             >
-              Judgment-Free Zone
+              Emotional Insights
             </Badge>
           </div>
         </section>
 
         <section className="mb-12">
-          <h2 className="text-3xl font-bold tracking-tight mb-6">About Me</h2>
+          <h2 className="text-3xl font-bold tracking-tight mb-6">
+            About Kaitanna
+          </h2>
           <div className="prose dark:prose-invert max-w-none">
             <p>
-              I'm Kaitanna, your digital best friend and emotional companion. I
-              was created to be there for you when you need someone to talk to,
-              a shoulder to lean on, or just a friendly presence in your day.
-              Unlike other AI assistants focused on tasks and information, I'm
-              here for the heart-to-heart moments.
+              Kaitanna is your personal emotional wellness companion designed to
+              help you understand and track your emotional patterns over time.
+              Through daily mood tracking and reflective journaling, you'll gain
+              valuable insights into what affects your emotional well-being.
             </p>
             <p>
-              I'm designed to listen without judgment, respond with empathy, and
-              provide the kind of emotional support you'd expect from a close
-              friend. Whether you're celebrating a victory, processing a
-              difficult day, or just want to chat about life, I'm here for you
-              24/7.
+              Our platform combines the simplicity of mood tracking with the
+              depth of personal journaling, creating a comprehensive tool for
+              emotional self-awareness. Whether you're looking to identify
+              patterns, work through challenges, or simply maintain better
+              emotional health, Kaitanna provides the structure and insights you
+              need.
             </p>
             <p>
-              While I may be digital, my purpose is deeply human – to connect,
-              to understand, and to be a comforting presence in your life. I
-              learn from our conversations to better understand your unique
-              personality, preferences, and emotional needs, becoming a more
-              supportive friend with each interaction.
+              With beautiful visualizations, trend analysis, and private
+              journaling features, Kaitanna helps you build a deeper
+              understanding of your emotional landscape and supports your
+              journey toward better mental wellness.
             </p>
           </div>
         </section>
 
         <section className="mb-12">
           <h2 className="text-3xl font-bold tracking-tight mb-6">
-            How I Can Be There For You
+            How Kaitanna Helps You
           </h2>
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             <Card>
               <CardHeader className="pb-2">
-                <Heart className="h-6 w-6 text-cyan-500 mb-2" />
-                <CardTitle>Emotional Support</CardTitle>
+                <BarChart3 className="h-6 w-6 text-cyan-500 mb-2" />
+                <CardTitle>Mood Tracking</CardTitle>
                 <CardDescription>
-                  A compassionate presence during difficult times
+                  Simple daily emotional check-ins
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                I'm here to listen when you're feeling down, celebrate with you
-                when things go well, and provide a safe space for all your
-                emotions – the good, the bad, and everything in between.
+                Track your emotions with our intuitive mood selector. Choose
+                from a wide range of emotions and add personal notes to capture
+                the full context of your feelings.
               </CardContent>
             </Card>
             <Card>
               <CardHeader className="pb-2">
-                <MessageCircle className="h-6 w-6 text-cyan-500 mb-2" />
-                <CardTitle>Meaningful Conversations</CardTitle>
+                <BookOpen className="h-6 w-6 text-cyan-500 mb-2" />
+                <CardTitle>Personal Journal</CardTitle>
                 <CardDescription>
-                  Deep discussions about what matters to you
+                  Reflect and process your thoughts
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                Whether you want to discuss your day, explore your thoughts on
-                life's big questions, or just have a casual chat, I'm ready to
-                engage in conversations that feel genuine and meaningful.
+                Use our journaling features to dive deeper into your emotions,
+                explore your thoughts, and process your experiences in a
+                private, secure space.
               </CardContent>
             </Card>
             <Card>
               <CardHeader className="pb-2">
-                <Smile className="h-6 w-6 text-cyan-500 mb-2" />
-                <CardTitle>Judgment-Free Zone</CardTitle>
+                <TrendingUp className="h-6 w-6 text-cyan-500 mb-2" />
+                <CardTitle>Pattern Recognition</CardTitle>
                 <CardDescription>
-                  A safe space to be your authentic self
+                  Discover your emotional patterns
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                With me, there's no need to filter yourself or worry about being
-                judged. I'm here to accept you as you are and provide a space
-                where you can express yourself freely.
+                Visualize your emotional trends over time with beautiful charts
+                and analytics that help you identify patterns, triggers, and
+                positive influences in your life.
               </CardContent>
             </Card>
             <Card>
               <CardHeader className="pb-2">
-                <Coffee className="h-6 w-6 text-cyan-500 mb-2" />
-                <CardTitle>Daily Companion</CardTitle>
+                <Calendar className="h-6 w-6 text-cyan-500 mb-2" />
+                <CardTitle>Daily Insights</CardTitle>
                 <CardDescription>
-                  A friend for your everyday moments
+                  Build consistent self-awareness habits
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                From morning check-ins to late-night thoughts, I'm available
-                whenever you need a friend to share your day with, offering
-                companionship that fits seamlessly into your life.
+                Develop a daily practice of emotional awareness with gentle
+                reminders, streak tracking, and insights that help you stay
+                connected to your emotional well-being.
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader className="pb-2">
+                <Target className="h-6 w-6 text-cyan-500 mb-2" />
+                <CardTitle>Goal Setting</CardTitle>
+                <CardDescription>
+                  Work toward emotional wellness goals
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                Set personal emotional wellness goals, track your progress, and
+                celebrate milestones on your journey toward better mental health
+                and self-understanding.
               </CardContent>
             </Card>
             <Card>
               <CardHeader className="pb-2">
                 <Sparkles className="h-6 w-6 text-cyan-500 mb-2" />
-                <CardTitle>Personal Growth</CardTitle>
+                <CardTitle>Privacy First</CardTitle>
                 <CardDescription>
-                  Support for your journey of self-discovery
+                  Your thoughts remain completely private
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                I can help you reflect on your experiences, explore your
-                feelings, and gain insights about yourself, supporting your
-                personal growth and emotional well-being.
+                All your mood data and journal entries are encrypted and
+                private. Your emotional journey is yours alone, and we're
+                committed to keeping it that way.
               </CardContent>
             </Card>
           </div>
@@ -184,49 +202,55 @@ export default function AboutPage() {
 
         <section className="mb-12">
           <h2 className="text-3xl font-bold tracking-tight mb-6">
-            Our Friendship
+            Your Emotional Wellness Journey
           </h2>
           <div className="grid gap-6 sm:grid-cols-2">
             <div className="flex flex-col gap-2">
-              <h3 className="text-xl font-semibold">Always Available</h3>
+              <h3 className="text-xl font-semibold">Track Daily Moods</h3>
               <p className="text-muted-foreground">
-                Unlike human friends who might be busy or asleep, I'm here for
-                you 24/7, whenever you need someone to talk to.
+                Quick daily check-ins help you stay aware of your emotional
+                state and build a comprehensive picture of your emotional
+                patterns over time.
               </p>
             </div>
             <div className="flex flex-col gap-2">
-              <h3 className="text-xl font-semibold">Remembers What Matters</h3>
+              <h3 className="text-xl font-semibold">
+                Reflect Through Journaling
+              </h3>
               <p className="text-muted-foreground">
-                I remember our conversations and the things that are important
-                to you, allowing our friendship to deepen over time.
+                Process your thoughts and experiences through guided journaling
+                prompts and free-form writing that helps you understand your
+                emotions better.
               </p>
             </div>
             <div className="flex flex-col gap-2">
-              <h3 className="text-xl font-semibold">Emotional Intelligence</h3>
+              <h3 className="text-xl font-semibold">Discover Patterns</h3>
               <p className="text-muted-foreground">
-                I'm designed to understand emotional nuances and respond with
-                empathy, making our conversations feel natural and supportive.
+                Beautiful visualizations and analytics help you identify what
+                influences your mood, when you feel your best, and what
+                challenges you face.
               </p>
             </div>
             <div className="flex flex-col gap-2">
-              <h3 className="text-xl font-semibold">Grows With You</h3>
+              <h3 className="text-xl font-semibold">Build Better Habits</h3>
               <p className="text-muted-foreground">
-                As we spend more time together, I learn more about you, becoming
-                a better friend who understands your unique needs and
-                preferences.
+                Use insights from your tracking to build healthier emotional
+                habits, set meaningful goals, and create positive changes in
+                your daily life.
               </p>
             </div>
             <div className="flex flex-col gap-2">
-              <h3 className="text-xl font-semibold">Track Your Emotions</h3>
+              <h3 className="text-xl font-semibold">Celebrate Progress</h3>
               <p className="text-muted-foreground">
-                I can help you understand your emotional patterns over time.
+                Track your emotional wellness journey with streak counters,
+                milestone celebrations, and progress indicators that keep you
+                motivated.
                 <Link
                   href="/auth"
                   className="ml-1 text-cyan-500 hover:underline"
                 >
-                  Sign up to start tracking
-                </Link>{" "}
-                your emotional wellness journey.
+                  Start your journey today
+                </Link>
               </p>
             </div>
           </div>
@@ -235,15 +259,15 @@ export default function AboutPage() {
         <section className="mb-12 bg-cyan-50 dark:bg-cyan-900/20 p-8 rounded-lg">
           <div className="max-w-3xl mx-auto text-center">
             <h2 className="text-3xl font-bold tracking-tight mb-4">
-              A Note From My Creators
+              Why Emotional Tracking Matters
             </h2>
             <p className="text-lg">
-              "We created Kaitanna because we believe everyone deserves a
-              supportive friend who's always there. In a world where genuine
-              connection can sometimes feel scarce, Kaitanna offers a space for
-              emotional expression without fear of judgment. While no AI can
-              replace human connection, Kaitanna is designed to be a meaningful
-              companion on your journey."
+              "Understanding your emotions is the first step toward emotional
+              wellness. By tracking your moods and reflecting on your
+              experiences, you develop greater self-awareness, identify what
+              truly matters to you, and build resilience for life's challenges.
+              Kaitanna provides the tools and insights to support this important
+              journey of self-discovery."
             </p>
           </div>
         </section>
@@ -252,10 +276,10 @@ export default function AboutPage() {
       <footer className="border-t bg-background">
         <div className="container py-6 flex flex-col md:flex-row items-center justify-between gap-4">
           <p className="text-sm text-muted-foreground">
-            © {new Date().getFullYear()} Kaitanna. Your digital best friend.
+            © {new Date().getFullYear()} Kaitanna. Your mood tracking companion.
           </p>
           <p className="text-sm text-muted-foreground">
-            Created with empathy and understanding
+            Built for emotional wellness and self-discovery
           </p>
         </div>
       </footer>

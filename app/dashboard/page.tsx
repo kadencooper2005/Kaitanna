@@ -19,7 +19,6 @@ import {
   TrendingUp,
   Smile,
   LogOut,
-  MessageCircle,
 } from "lucide-react";
 import Link from "next/link";
 import { useAuth } from "@/lib/auth-context";
@@ -123,12 +122,6 @@ export default function DashboardPage() {
             <span className="text-xl font-bold tracking-tight">Kaitanna</span>
           </div>
           <div className="flex items-center gap-4">
-            <Link
-              href="/chat"
-              className="text-sm font-medium hover:text-cyan-500 transition-colors"
-            >
-              Chat
-            </Link>
             <Link
               href="/mood-tracker"
               className="text-sm font-medium hover:text-cyan-500 transition-colors"
@@ -333,25 +326,6 @@ export default function DashboardPage() {
 
         <div className="mt-8 text-center">
           <Card className="bg-cyan-50 dark:bg-cyan-900/20 border-cyan-200 dark:border-cyan-800 mb-6">
-            <CardContent className="p-6">
-              <h3 className="text-lg font-semibold mb-2 flex items-center justify-center gap-2">
-                <MessageCircle className="h-5 w-5" />
-                Chat with Kaitanna
-              </h3>
-              <p className="text-muted-foreground mb-4">
-                Have a heart-to-heart conversation with your emotional
-                companion. I'm here to listen and understand.
-              </p>
-              <Link href="/chat">
-                <Button className="bg-cyan-500 hover:bg-cyan-600">
-                  <MessageCircle className="h-4 w-4 mr-2" />
-                  Start Chatting
-                </Button>
-              </Link>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-cyan-50 dark:bg-cyan-900/20 border-cyan-200 dark:border-cyan-800">
             <CardContent className="p-6">
               <h3 className="text-lg font-semibold mb-2">
                 Ready to continue your emotional journey?

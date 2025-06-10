@@ -14,14 +14,7 @@ import {
 } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-import {
-  Heart,
-  TrendingUp,
-  Calendar,
-  BarChart3,
-  LogOut,
-  MessageCircle,
-} from "lucide-react";
+import { Heart, TrendingUp, Calendar, BarChart3, LogOut } from "lucide-react";
 import Link from "next/link";
 import { useAuth } from "@/lib/auth-context";
 import {
@@ -105,12 +98,6 @@ export default function MoodTrackerPage() {
               className="text-sm font-medium hover:text-cyan-500 transition-colors"
             >
               Dashboard
-            </Link>
-            <Link
-              href="/chat"
-              className="text-sm font-medium hover:text-cyan-500 transition-colors"
-            >
-              Chat
             </Link>
             <div className="flex items-center gap-2">
               <BarChart3 className="h-5 w-5 text-cyan-500" />
@@ -281,12 +268,6 @@ export default function MoodTrackerPage() {
                     <Button variant="outline" className="w-full justify-start">
                       <Heart className="h-4 w-4 mr-2" />
                       Back to Dashboard
-                    </Button>
-                  </Link>
-                  <Link href="/chat">
-                    <Button variant="outline" className="w-full justify-start">
-                      <MessageCircle className="h-4 w-4 mr-2" />
-                      Chat with Kaitanna
                     </Button>
                   </Link>
                   {!todayEntry && (

@@ -4,9 +4,9 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { AuthProvider } from "@/lib/auth-context";
 
 export const metadata = {
-  title: "Kaitanna - Your Digital Best Friend",
+  title: "Kaitanna - Your Mood Tracking Companion",
   description:
-    "Kaitanna is your emotional companion, always ready to listen, support, and be there for you.",
+    "Track your emotions, discover patterns, and build better emotional wellness habits with Kaitanna.",
 };
 
 export default function RootLayout({
