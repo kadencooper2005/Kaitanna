@@ -34,13 +34,14 @@ export default function AuthPage() {
     setIsLoading(true);
     setError("");
 
-    const { error } = await supabase.auth.signInWithPassword({
-      email: loginForm.email,
-      password: loginForm.password,
-    });
-
+    if (supabase) {
+      const { error } = await supabase.auth.signInWithPassword({
+        email: loginForm.email,
+        password: loginForm.password,
+      });
+    }
     if (error) {
-      setError(error.message);
+      setError(error);
     } else {
       router.push("/dashboard");
     }
@@ -58,13 +59,14 @@ export default function AuthPage() {
       return;
     }
 
-    const { error } = await supabase.auth.signUp({
-      email: signupForm.email,
-      password: signupForm.password,
-    });
-
+    if (supabase) {
+      const { error } = await supabase.auth.signUp({
+        email: signupForm.email,
+        password: signupForm.password,
+      });
+    }
     if (error) {
-      setError(error.message);
+      setError(error);
     } else {
       router.push("/dashboard");
     }
@@ -74,21 +76,22 @@ export default function AuthPage() {
   const handleGoogleAuth = async () => {
     setIsLoading(true);
     setError("");
+    if (supabase) {
+      try {
+        const { error } = await supabase.auth.signInWithOAuth({
+          provider: "google",
+        });
 
-    try {
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: "google",
-      });
+        if (error) {
+          setError("Google authentication failed");
+        }
 
-      if (error) {
+        // Supabase will handle the redirect and callback.
+      } catch (err) {
         setError("Google authentication failed");
+      } finally {
+        setIsLoading(false);
       }
-
-      // Supabase will handle the redirect and callback.
-    } catch (err) {
-      setError("Google authentication failed");
-    } finally {
-      setIsLoading(false);
     }
   };
 
