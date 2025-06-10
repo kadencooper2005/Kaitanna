@@ -7,8 +7,6 @@ import {
   useEffect,
   type ReactNode,
 } from "react";
-import { useRouter } from "next/navigation";
-import { supabase } from "@/lib/supabase";
 
 interface User {
   id: string;
@@ -19,90 +17,81 @@ interface User {
 
 interface AuthContextType {
   user: User | null;
-  login: (email: string, password: string) => Promise<boolean>;
+  login: (
+    username: string,
+    password: string,
+    isGoogle?: boolean
+  ) => Promise<boolean>;
   signup: (
     username: string,
     email: string,
     password: string
   ) => Promise<boolean>;
-  logout: () => Promise<void>;
-  signInWithGoogle: () => Promise<void>;
+  logout: () => void;
+  updateProfile: (userId: string, updates: ProfileUpdate) => Promise<boolean>;
+  deleteAccount: (userId: string) => Promise<boolean>;
+}
+
+interface ProfileUpdate {
+  username?: string;
+  email?: string;
+  currentPassword?: string;
+  newPassword?: string;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
-  const router = useRouter();
 
   useEffect(() => {
-    const init = async () => {
-      if (supabase) {
-        const { data } = await supabase.auth.getSession();
-        if (data.session?.user) {
-          const u = data.session.user;
-          setUser({
-            id: u.id,
-            username: u.user_metadata?.username || u.email || "",
-            email: u.email || "",
-            createdAt: u.created_at || "",
-          });
-          // No redirect here on init
-        }
-      }
-    };
-
-    init();
-
-    if (supabase) {
-      const authListener = supabase.auth.onAuthStateChange(
-        async (event, session) => {
-          if (session?.user) {
-            const u = session.user;
-            setUser({
-              id: u.id,
-              username: u.user_metadata?.username || u.email || "",
-              email: u.email || "",
-              createdAt: u.created_at || "",
-            });
-            // Redirect after login or OAuth redirect
-            router.push("/dashboard");
-          } else {
-            setUser(null);
-          }
-        }
-      );
-
-      return () => {
-        if (authListener?.data?.subscription) {
-          authListener.data.subscription.unsubscribe();
-        }
-      };
+    // Check for existing session
+    const savedUser = localStorage.getItem("kaitanna-user");
+    if (savedUser) {
+      setUser(JSON.parse(savedUser));
     }
-  }, [router]);
+  }, []);
 
-  const login = async (email: string, password: string): Promise<boolean> => {
-    if (!supabase) return false;
+  const login = async (
+    username: string,
+    password: string,
+    isGoogle = false
+  ): Promise<boolean> => {
+    // Simulate API call
+    await new Promise((resolve) => setTimeout(resolve, 500));
 
-    const { error, data } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
+    if (isGoogle) {
+      // Simulate Google OAuth
+      const googleUser: User = {
+        id: "google_" + Date.now(),
+        username: "Google User",
+        email: "user@gmail.com",
+        createdAt: new Date().toISOString(),
+      };
+      setUser(googleUser);
+      localStorage.setItem("kaitanna-user", JSON.stringify(googleUser));
+      return true;
+    }
 
-    if (error || !data.session) return false;
+    // Check stored users
+    const users = JSON.parse(localStorage.getItem("kaitanna-users") || "[]");
+    const foundUser = users.find(
+      (u: any) => u.username === username && u.password === password
+    );
 
-    const u = data.user;
-    setUser({
-      id: u.id,
-      username: u.user_metadata?.username || u.email || "",
-      email: u.email || "",
-      createdAt: u.created_at || "",
-    });
+    if (foundUser) {
+      const userSession: User = {
+        id: foundUser.id,
+        username: foundUser.username,
+        email: foundUser.email,
+        createdAt: foundUser.createdAt,
+      };
+      setUser(userSession);
+      localStorage.setItem("kaitanna-user", JSON.stringify(userSession));
+      return true;
+    }
 
-    // Redirect after successful login
-    router.push("/dashboard");
-
-    return true;
+    return false;
   };
 
   const signup = async (
@@ -110,59 +99,153 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     email: string,
     password: string
   ): Promise<boolean> => {
-    if (!supabase) return false;
+    // Simulate API call
+    await new Promise((resolve) => setTimeout(resolve, 500));
 
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: { username },
-      },
-    });
+    // Check if user already exists
+    const users = JSON.parse(localStorage.getItem("kaitanna-users") || "[]");
+    const existingUser = users.find(
+      (u: any) => u.username === username || u.email === email
+    );
 
-    if (error || !data.user) return false;
+    if (existingUser) {
+      return false;
+    }
 
-    const u = data.user;
-    setUser({
-      id: u.id,
+    // Create new user
+    const newUser = {
+      id: Date.now().toString(),
       username,
       email,
-      createdAt: u.created_at || "",
-    });
+      password,
+      createdAt: new Date().toISOString(),
+    };
 
-    // Optionally redirect after signup
-    router.push("/dashboard");
+    users.push(newUser);
+    localStorage.setItem("kaitanna-users", JSON.stringify(users));
+
+    // Log in the new user
+    const userSession: User = {
+      id: newUser.id,
+      username: newUser.username,
+      email: newUser.email,
+      createdAt: newUser.createdAt,
+    };
+    setUser(userSession);
+    localStorage.setItem("kaitanna-user", JSON.stringify(userSession));
 
     return true;
   };
 
-  const logout = async () => {
-    if (!supabase) return;
+  const updateProfile = async (
+    userId: string,
+    updates: ProfileUpdate
+  ): Promise<boolean> => {
+    // Simulate API call
+    await new Promise((resolve) => setTimeout(resolve, 500));
 
-    await supabase.auth.signOut();
-    setUser(null);
-    router.push("/"); // Redirect to homepage or login page after logout
+    const users = JSON.parse(localStorage.getItem("kaitanna-users") || "[]");
+    const userIndex = users.findIndex((u: any) => u.id === userId);
+
+    if (userIndex === -1) {
+      return false;
+    }
+
+    const currentUser = users[userIndex];
+
+    // If updating password, verify current password
+    if (updates.currentPassword && updates.newPassword) {
+      if (currentUser.password !== updates.currentPassword) {
+        return false;
+      }
+      currentUser.password = updates.newPassword;
+    }
+
+    // If updating username or email, check for conflicts
+    if (updates.username || updates.email) {
+      const conflictUser = users.find(
+        (u: any) =>
+          u.id !== userId &&
+          ((updates.username && u.username === updates.username) ||
+            (updates.email && u.email === updates.email))
+      );
+
+      if (conflictUser) {
+        return false;
+      }
+
+      if (updates.username) currentUser.username = updates.username;
+      if (updates.email) currentUser.email = updates.email;
+    }
+
+    // Update the user in storage
+    users[userIndex] = currentUser;
+    localStorage.setItem("kaitanna-users", JSON.stringify(users));
+
+    // Update current session if it's the same user
+    if (user && user.id === userId) {
+      const updatedUser: User = {
+        id: currentUser.id,
+        username: currentUser.username,
+        email: currentUser.email,
+        createdAt: currentUser.createdAt,
+      };
+      setUser(updatedUser);
+      localStorage.setItem("kaitanna-user", JSON.stringify(updatedUser));
+    }
+
+    return true;
   };
 
-  const signInWithGoogle = async () => {
-    if (!supabase) {
-      console.error("Supabase instance is not available");
-      return;
-    }
+  const deleteAccount = async (userId: string): Promise<boolean> => {
+    // Simulate API call
+    await new Promise((resolve) => setTimeout(resolve, 500));
 
     try {
-      // This will redirect to Google and back, no immediate session or redirect here
-      await supabase.auth.signInWithOAuth({
-        provider: "google",
-      });
-    } catch (err) {
-      console.error("Unexpected error during Google sign in:", err);
+      // Remove user from users list
+      const users = JSON.parse(localStorage.getItem("kaitanna-users") || "[]");
+      const filteredUsers = users.filter((u: any) => u.id !== userId);
+      localStorage.setItem("kaitanna-users", JSON.stringify(filteredUsers));
+
+      // Remove user's mood data
+      const moodEntries = JSON.parse(
+        localStorage.getItem("kaitanna-mood-entries") || "[]"
+      );
+      const filteredMoodEntries = moodEntries.filter(
+        (entry: any) => entry.userId !== userId
+      );
+      localStorage.setItem(
+        "kaitanna-mood-entries",
+        JSON.stringify(filteredMoodEntries)
+      );
+
+      // Remove user's journal data
+      const journalEntries = JSON.parse(
+        localStorage.getItem("kaitanna-journal-entries") || "[]"
+      );
+      const filteredJournalEntries = journalEntries.filter(
+        (entry: any) => entry.user_id !== userId
+      );
+      localStorage.setItem(
+        "kaitanna-journal-entries",
+        JSON.stringify(filteredJournalEntries)
+      );
+
+      return true;
+    } catch (error) {
+      console.error("Error deleting account:", error);
+      return false;
     }
+  };
+
+  const logout = () => {
+    setUser(null);
+    localStorage.removeItem("kaitanna-user");
   };
 
   return (
     <AuthContext.Provider
-      value={{ user, login, signup, logout, signInWithGoogle }}
+      value={{ user, login, signup, logout, updateProfile, deleteAccount }}
     >
       {children}
     </AuthContext.Provider>
