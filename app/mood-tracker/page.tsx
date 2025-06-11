@@ -28,6 +28,7 @@ export default function MoodTrackerPage() {
   const router = useRouter();
   const [moodEntries, setMoodEntries] = useState<MoodEntry[]>([]);
   const [selectedMood, setSelectedMood] = useState<string | null>(null);
+  const [isUpdating, setIsUpdating] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -42,17 +43,27 @@ export default function MoodTrackerPage() {
     setIsLoading(false);
   }, [user, router]);
 
-  const handleMoodSelect = async (mood: string) => {
+  const handleMoodSelect = async (mood: string, note?: string) => {
     if (!user) return;
 
     try {
-      await addUserMoodEntry(user.id, mood);
+      await addUserMoodEntry(user.id, mood, note);
       // Refresh mood entries after adding new one
       const updatedMoods = getUserMoodEntries(user.id);
       setMoodEntries(updatedMoods);
+      // Reset update state after successful update
+      setIsUpdating(false);
     } catch (error) {
       console.error("Error adding mood entry:", error);
     }
+  };
+
+  const handleUpdateClick = () => {
+    setIsUpdating(true);
+  };
+
+  const handleCancelUpdate = () => {
+    setIsUpdating(false);
   };
 
   const handleLogout = async () => {
@@ -168,16 +179,24 @@ export default function MoodTrackerPage() {
                         &quot;{todayEntry.note}&quot;
                       </p>
                     )}
-                    <Button
-                      variant="outline"
-                      onClick={() => setSelectedMood("update")}
-                      className="mt-4"
-                    >
-                      Update Today&apos;s Mood
-                    </Button>
-                    {selectedMood === "update" && (
-                      <div className="mt-4">
+                    {!isUpdating ? (
+                      <Button
+                        variant="outline"
+                        onClick={handleUpdateClick}
+                        className="mt-4"
+                      >
+                        Update Today&apos;s Mood
+                      </Button>
+                    ) : (
+                      <div className="mt-4 space-y-4">
                         <MoodSelector onMoodSelect={handleMoodSelect} />
+                        <Button
+                          variant="ghost"
+                          onClick={handleCancelUpdate}
+                          className="w-full"
+                        >
+                          Cancel Update
+                        </Button>
                       </div>
                     )}
                   </div>
