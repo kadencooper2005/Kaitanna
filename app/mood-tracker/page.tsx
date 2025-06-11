@@ -27,7 +27,6 @@ export default function MoodTrackerPage() {
   const { user, logout } = useAuth();
   const router = useRouter();
   const [moodEntries, setMoodEntries] = useState<MoodEntry[]>([]);
-  const [selectedMood, setSelectedMood] = useState<string | null>(null);
   const [isUpdating, setIsUpdating] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
