@@ -7,7 +7,15 @@ const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 // Only create Supabase client if environment variables are available
 export const supabase = supabaseUrl && supabaseAnonKey ? createClient(supabaseUrl, supabaseAnonKey) : null
 
-// Types for our journal data
+// Types for our data
+export interface Profile {
+    id: string
+    username: string
+    email: string
+    created_at: string
+    updated_at: string
+}
+
 export interface JournalEntry {
     id: string
     user_id: string
@@ -15,6 +23,88 @@ export interface JournalEntry {
     content: string
     created_at: string
     updated_at: string
+}
+
+// Profile functions
+export async function createProfile(userId: string, username: string, email: string): Promise<Profile | null> {
+    if (!supabase) return null
+
+    try {
+        const { data, error } = await supabase
+            .from("profiles")
+            .insert([
+                {
+                    id: userId,
+                    username,
+                    email,
+                    created_at: new Date().toISOString(),
+                    updated_at: new Date().toISOString(),
+                },
+            ])
+            .select()
+            .single()
+
+        if (error) {
+            console.error("Error creating profile:", error)
+            return null
+        }
+
+        return data
+    } catch (error) {
+        console.error("Error creating profile:", error)
+        return null
+    }
+}
+
+export async function getProfile(userId: string): Promise<Profile | null> {
+    if (!supabase) return null
+
+    try {
+        const { data, error } = await supabase
+            .from("profiles")
+            .select("*")
+            .eq("id", userId)
+            .single()
+
+        if (error) {
+            console.error("Error fetching profile:", error)
+            return null
+        }
+
+        return data
+    } catch (error) {
+        console.error("Error fetching profile:", error)
+        return null
+    }
+}
+
+export async function updateProfile(
+    userId: string,
+    updates: Partial<Profile>
+): Promise<Profile | null> {
+    if (!supabase) return null
+
+    try {
+        const { data, error } = await supabase
+            .from("profiles")
+            .update({
+                ...updates,
+                updated_at: new Date().toISOString(),
+            })
+            .eq("id", userId)
+            .select()
+            .single()
+
+        if (error) {
+            console.error("Error updating profile:", error)
+            return null
+        }
+
+        return data
+    } catch (error) {
+        console.error("Error updating profile:", error)
+        return null
+    }
 }
 
 // Local storage fallback key

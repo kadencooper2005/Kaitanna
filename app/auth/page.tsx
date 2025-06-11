@@ -1,8 +1,6 @@
 "use client";
 
-import type React from "react";
-
-import { useState } from "react";
+import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   Card,
@@ -15,16 +13,14 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { BarChart3, Mail, Lock, User } from "lucide-react";
-import Link from "next/link";
+import { BarChart3 } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
-import { supabase } from "@/lib/supabase";
 
 export default function AuthPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const router = useRouter();
-  const { login, signup } = useAuth();
+  const { login, signup, loginWithGoogle } = useAuth();
 
   const [loginForm, setLoginForm] = useState({
     username: "",
@@ -50,8 +46,7 @@ export default function AuthPage() {
       } else {
         setError("Invalid username or password");
       }
-    } catch (error) {
-      console.error("Login error:", error);
+    } catch {
       setError("An error occurred during login");
     } finally {
       setIsLoading(false);
@@ -84,10 +79,9 @@ export default function AuthPage() {
       if (success) {
         router.push("/dashboard");
       } else {
-        setError("Username already exists");
+        setError("Username or email already exists");
       }
-    } catch (error) {
-      console.error("Signup error:", error);
+    } catch {
       setError("An error occurred during signup");
     } finally {
       setIsLoading(false);
@@ -99,26 +93,11 @@ export default function AuthPage() {
     setError("");
 
     try {
-      if (!supabase) {
-        setError("Authentication service is not available");
-        return;
-      }
-
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: "google",
-        options: {
-          redirectTo: `${window.location.origin}/dashboard`,
-        },
-      });
-
-      if (error) {
-        setError(error.message);
-      }
-      // Supabase handles the redirect automatically
-    } catch (error) {
-      console.error("Google auth error:", error);
+      await loginWithGoogle();
+      // The URL will be handled by Supabase's OAuth flow
+      // No need to manually redirect as Supabase will handle it
+    } catch {
       setError("Google authentication failed");
-    } finally {
       setIsLoading(false);
     }
   };
@@ -131,13 +110,10 @@ export default function AuthPage() {
             <BarChart3 className="h-8 w-8 text-cyan-500" />
             <h1 className="text-2xl font-bold tracking-tight">Kaitanna</h1>
           </div>
-          <p className="text-muted-foreground">
-            Welcome to your mood tracking companion
-          </p>
+          <p>Login or sign up to continue</p>
         </div>
-
-        <Tabs defaultValue="login" className="w-full">
-          <TabsList className="grid w-full grid-cols-2">
+        <Tabs defaultValue="login" className="space-y-6">
+          <TabsList>
             <TabsTrigger value="login">Login</TabsTrigger>
             <TabsTrigger value="signup">Sign Up</TabsTrigger>
           </TabsList>
@@ -145,85 +121,54 @@ export default function AuthPage() {
           <TabsContent value="login">
             <Card>
               <CardHeader>
-                <CardTitle>Welcome back</CardTitle>
+                <CardTitle>Welcome Back</CardTitle>
                 <CardDescription>
-                  Sign in to continue your emotional journey
+                  Enter your credentials to access your account
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 <form onSubmit={handleLogin} className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="login-username">Username</Label>
-                    <div className="relative">
-                      <User className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                      <Input
-                        id="login-username"
-                        type="text"
-                        placeholder="Enter your username"
-                        value={loginForm.username}
-                        onChange={(e) =>
-                          setLoginForm({
-                            ...loginForm,
-                            username: e.target.value,
-                          })
-                        }
-                        className="pl-10"
-                        required
-                      />
-                    </div>
+                  <div>
+                    <Label htmlFor="username">Email</Label>
+                    <Input
+                      id="username"
+                      type="email"
+                      value={loginForm.username}
+                      onChange={(e) =>
+                        setLoginForm({ ...loginForm, username: e.target.value })
+                      }
+                      required
+                    />
                   </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="login-password">Password</Label>
-                    <div className="relative">
-                      <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                      <Input
-                        id="login-password"
-                        type="password"
-                        placeholder="Enter your password"
-                        value={loginForm.password}
-                        onChange={(e) =>
-                          setLoginForm({
-                            ...loginForm,
-                            password: e.target.value,
-                          })
-                        }
-                        className="pl-10"
-                        required
-                      />
-                    </div>
+                  <div>
+                    <Label htmlFor="password">Password</Label>
+                    <Input
+                      id="password"
+                      type="password"
+                      value={loginForm.password}
+                      onChange={(e) =>
+                        setLoginForm({ ...loginForm, password: e.target.value })
+                      }
+                      required
+                    />
                   </div>
-                  {error && <p className="text-sm text-red-500">{error}</p>}
-                  <Button
-                    type="submit"
-                    className="w-full bg-cyan-500 hover:bg-cyan-600"
-                    disabled={isLoading}
-                  >
-                    {isLoading ? "Signing in..." : "Sign In"}
-                  </Button>
-                </form>
 
-                <div className="mt-4">
-                  <div className="relative">
-                    <div className="absolute inset-0 flex items-center">
-                      <span className="w-full border-t" />
-                    </div>
-                    <div className="relative flex justify-center text-xs uppercase">
-                      <span className="bg-background px-2 text-muted-foreground">
-                        Or continue with
-                      </span>
-                    </div>
-                  </div>
+                  {error && <p className="text-red-500">{error}</p>}
+
+                  <Button type="submit" disabled={isLoading} className="w-full">
+                    {isLoading ? "Loading..." : "Login"}
+                  </Button>
+
                   <Button
                     type="button"
-                    variant="outline"
-                    className="w-full mt-4"
                     onClick={handleGoogleAuth}
+                    variant="outline"
+                    className="w-full mt-2"
                     disabled={isLoading}
                   >
-                    <Mail className="mr-2 h-4 w-4" />
-                    Google
+                    Continue with Google
                   </Button>
-                </div>
+                </form>
               </CardContent>
             </Card>
           </TabsContent>
@@ -231,140 +176,82 @@ export default function AuthPage() {
           <TabsContent value="signup">
             <Card>
               <CardHeader>
-                <CardTitle>Create account</CardTitle>
+                <CardTitle>Create an Account</CardTitle>
                 <CardDescription>
-                  Start your journey with Kaitanna today
+                  Enter your details to create a new account
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 <form onSubmit={handleSignup} className="space-y-4">
-                  <div className="space-y-2">
+                  <div>
                     <Label htmlFor="signup-username">Username</Label>
-                    <div className="relative">
-                      <User className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                      <Input
-                        id="signup-username"
-                        type="text"
-                        placeholder="Choose a username"
-                        value={signupForm.username}
-                        onChange={(e) =>
-                          setSignupForm({
-                            ...signupForm,
-                            username: e.target.value,
-                          })
-                        }
-                        className="pl-10"
-                        required
-                      />
-                    </div>
+                    <Input
+                      id="signup-username"
+                      value={signupForm.username}
+                      onChange={(e) =>
+                        setSignupForm({
+                          ...signupForm,
+                          username: e.target.value,
+                        })
+                      }
+                      required
+                    />
                   </div>
-                  <div className="space-y-2">
+                  <div>
                     <Label htmlFor="signup-email">Email</Label>
-                    <div className="relative">
-                      <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                      <Input
-                        id="signup-email"
-                        type="email"
-                        placeholder="Enter your email"
-                        value={signupForm.email}
-                        onChange={(e) =>
-                          setSignupForm({
-                            ...signupForm,
-                            email: e.target.value,
-                          })
-                        }
-                        className="pl-10"
-                        required
-                      />
-                    </div>
+                    <Input
+                      id="signup-email"
+                      type="email"
+                      value={signupForm.email}
+                      onChange={(e) =>
+                        setSignupForm({ ...signupForm, email: e.target.value })
+                      }
+                      required
+                    />
                   </div>
-                  <div className="space-y-2">
+                  <div>
                     <Label htmlFor="signup-password">Password</Label>
-                    <div className="relative">
-                      <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                      <Input
-                        id="signup-password"
-                        type="password"
-                        placeholder="Create a password"
-                        value={signupForm.password}
-                        onChange={(e) =>
-                          setSignupForm({
-                            ...signupForm,
-                            password: e.target.value,
-                          })
-                        }
-                        className="pl-10"
-                        required
-                      />
-                    </div>
+                    <Input
+                      id="signup-password"
+                      type="password"
+                      value={signupForm.password}
+                      onChange={(e) =>
+                        setSignupForm({
+                          ...signupForm,
+                          password: e.target.value,
+                        })
+                      }
+                      required
+                    />
                   </div>
-                  <div className="space-y-2">
+                  <div>
                     <Label htmlFor="signup-confirm-password">
                       Confirm Password
                     </Label>
-                    <div className="relative">
-                      <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                      <Input
-                        id="signup-confirm-password"
-                        type="password"
-                        placeholder="Confirm your password"
-                        value={signupForm.confirmPassword}
-                        onChange={(e) =>
-                          setSignupForm({
-                            ...signupForm,
-                            confirmPassword: e.target.value,
-                          })
-                        }
-                        className="pl-10"
-                        required
-                      />
-                    </div>
+                    <Input
+                      id="signup-confirm-password"
+                      type="password"
+                      value={signupForm.confirmPassword}
+                      onChange={(e) =>
+                        setSignupForm({
+                          ...signupForm,
+                          confirmPassword: e.target.value,
+                        })
+                      }
+                      required
+                    />
                   </div>
-                  {error && <p className="text-sm text-red-500">{error}</p>}
-                  <Button
-                    type="submit"
-                    className="w-full bg-cyan-500 hover:bg-cyan-600"
-                    disabled={isLoading}
-                  >
-                    {isLoading ? "Creating account..." : "Create Account"}
+
+                  {error && <p className="text-red-500">{error}</p>}
+
+                  <Button type="submit" disabled={isLoading} className="w-full">
+                    {isLoading ? "Loading..." : "Sign Up"}
                   </Button>
                 </form>
-
-                <div className="mt-4">
-                  <div className="relative">
-                    <div className="absolute inset-0 flex items-center">
-                      <span className="w-full border-t" />
-                    </div>
-                    <div className="relative flex justify-center text-xs uppercase">
-                      <span className="bg-background px-2 text-muted-foreground">
-                        Or continue with
-                      </span>
-                    </div>
-                  </div>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    className="w-full mt-4"
-                    onClick={handleGoogleAuth}
-                    disabled={isLoading}
-                  >
-                    <Mail className="mr-2 h-4 w-4" />
-                    Google
-                  </Button>
-                </div>
               </CardContent>
             </Card>
           </TabsContent>
         </Tabs>
-
-        <div className="text-center mt-6">
-          <Link
-            href="/"
-            className="text-sm text-muted-foreground hover:text-cyan-500 transition-colors"
-          >
-            ← Back to About
-          </Link>
-        </div>
       </div>
     </div>
   );

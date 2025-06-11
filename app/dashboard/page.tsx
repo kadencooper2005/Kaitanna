@@ -398,7 +398,7 @@ export default function DashboardPage() {
               <div className="flex gap-3 justify-center">
                 <Link href="/mood-tracker">
                   <Button className="bg-cyan-500 hover:bg-cyan-600">
-                    {todayEntry ? "View Analytics" : "Track Today&apos;s Mood"}
+                    {todayEntry ? "View Analytics" : "Track Today's Mood"}
                   </Button>
                 </Link>
                 <Link href="/journal">

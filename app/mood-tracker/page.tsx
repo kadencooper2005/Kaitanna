@@ -223,7 +223,75 @@ export default function MoodTrackerPage() {
                     </span>
                     <span className="font-semibold">{moodEntries.length}</span>
                   </div>
-                  {/* more UI here */}
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-muted-foreground">
+                      Days tracked
+                    </span>
+                    <span className="font-semibold">
+                      {
+                        new Set(
+                          moodEntries.map((entry) =>
+                            new Date(entry.date).toDateString()
+                          )
+                        ).size
+                      }
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-muted-foreground">
+                      Current streak
+                    </span>
+                    <span className="font-semibold">
+                      {moodEntries.length > 0 ? "1 day" : "0 days"}
+                    </span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg">Emotional Insights</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3 text-sm">
+                  <p className="text-muted-foreground">
+                    &quot;Understanding your emotional patterns is the first
+                    step toward emotional wellness. I&apos;m here to support you
+                    through every feeling, {user.username}.&quot;
+                  </p>
+                  <p className="text-cyan-600 dark:text-cyan-400 italic">
+                    - Kaitanna, your emotional companion
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg">Quick Actions</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2">
+                  <Link href="/dashboard">
+                    <Button variant="outline" className="w-full justify-start">
+                      <Heart className="h-4 w-4 mr-2" />
+                      Back to Dashboard
+                    </Button>
+                  </Link>
+                  {!todayEntry && (
+                    <Button
+                      className="w-full justify-start bg-cyan-500 hover:bg-cyan-600"
+                      onClick={() =>
+                        document
+                          .getElementById("mood-selector")
+                          ?.scrollIntoView({ behavior: "smooth" })
+                      }
+                    >
+                      <BarChart3 className="h-4 w-4 mr-2" />
+                      Track Today&apo;s Mood
+                    </Button>
+                  )}
                 </div>
               </CardContent>
             </Card>
