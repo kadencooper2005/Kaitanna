@@ -111,6 +111,13 @@ export default function AuthPage() {
             <h1 className="text-2xl font-bold tracking-tight">Kaitanna</h1>
           </div>
           <p>Login or sign up to continue</p>
+          <Button
+            variant="ghost"
+            onClick={() => router.push("/")}
+            className="mt-4"
+          >
+            ← Back to Home
+          </Button>
         </div>
         <Tabs defaultValue="login" className="space-y-6">
           <TabsList>
